@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Pokemon API</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+    <div id="app">   
+        <div class="container mt-5">
+            <div class="row justify-content-around">
+
+                <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" v-for="pokemon in selectedPokemon">
+                    <div class="modal-dialog modal-dialog-centered modal-sm">
+                        <div class="modal-content p-5">
+                            <div class="modal-header">
+                                <h5 class="modal-title"></h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <img :src="pokemon.sprite">
+                                <h2 class="text-center">{{ pokemon.name }}</h2>
+                                <div class="row justify-content-center">
+                                    <div class="col-12">
+                                        <p><b>Experiência:</b> {{ pokemon.exp }}</p>
+                                        <p><b>Altura:</b> {{ pokemon.height }}m</p>
+                                        <p><b>Peso:</b> {{ pokemon.weight }}kg</p>
+                                        <p><b>Habilidades:</b></p>
+                                        <ul>
+                                            <li v-for="skill in pokemon.abilities">
+                                                {{ skill.ability.name }}
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6" v-for="(pokemon, index) in pokemons">
+                    <div class="card my-3">
+                        <!-- <span class="type text-uppercase">Fogo</span> -->
+                        <img class="card-img-top mt-5 mb-2" :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${index+1}.png`">
+                        <div class="card-body text-center">
+                            <p class="card-title text-center">{{ pokemon.name }}</p>
+                            <div class="d-flex justify-content-center">
+                                <a href="#" :id="pokemon.name" @click.prevent="showInfo" data-toggle="modal" data-target=".bd-example-modal-lg" class="btn btn-outline-secondary text-uppercase px-4 mb-3">informações       <img class="ml-3" src="assets/img/arrow-right.svg">
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div> <!-- fim col-lg-4 -->
+                
+            </div>
+        </div>
+    </div><!-- fim #app -->
+
+    <footer style="font-family: 'Inconsolata'; font-size: 20px;" class="d-flex container p-5 mb-3 justify-content-center">
+        <span><b>Estudos de Vue.JS</b> - Mikéias Oliveira</span>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    
+
+    <script src="assets/js/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+
+        const vm = new Vue({
+            el: "#app",
+            data: {
+                pokemons: [],
+                infoPokemons: [],
+                selectedPokemon: [],
+            },
+            methods: {
+
+                // Pega o nome dos pokemons
+                async getAllPokemons(){
+                    const response = await axios.get('https://pokeapi.co/api/v2/pokemon/?limit=60');
+                    this.pokemons = response.data.results;
+                    this.getInfoPokemon();
+                },
+
+                // Pega as informações de cada pokemon a partir do nome
+                getInfoPokemon(){
+                    this.pokemons.forEach( async (pokemon, index) => {
+                        const response = await axios.get(`https://pokeapi.co/api/v2/pokemon/${pokemon.name}`);
+        
+                        this.infoPokemons.push(
+                            {
+                                name: pokemon.name,
+                                exp: response.data.base_experience,
+                                height: response.data.height,
+                                id: response.data.id,
+                                sprite: response.data.sprites.front_default,
+                                weight: response.data.weight,
+                                abilities: response.data.abilities,
+                            }
+                        );
+                    });        
+                },
+
+                // Verifica o modal clicado e direciona os dados do pokemon
+                showInfo(event){
+                    const namePokemon = event.currentTarget.id;
+                    this.selectedPokemon = [];
+                    this.selectedPokemon.push(
+                        this.infoPokemons.find( pokemon => pokemon.name === namePokemon)
+                    );
+                }
+            },
+            created(){
+                this.getAllPokemons(); 
+            },
+        });
+    
+    </script>
+</body>
+</html>
