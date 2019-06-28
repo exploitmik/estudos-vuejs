@@ -58,9 +58,26 @@ body {
 	color: white;
 }
 
+.load-more {
+  background: white;
+  color: tomato;
+  border: 1px solid tomato;
+}
+
+.load-more:hover {
+  background: tomato;
+  color: white;
+}
+
+.load-more:disabled {
+  background: #f1f1f1;
+  color: tomato;
+  opacity: .4;
+}
+
 /* MODAL */
 .modal {
-	font-family: 'Inconsolata';
+  font-family: 'Inconsolata';
 }
 
 .modal .modal-body h2 {
